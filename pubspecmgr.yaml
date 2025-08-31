@@ -1,0 +1,6 @@
+marked_paths:
+  dependencies:
+    flutter: ""
+    flutter_localizations: ""
+  dev_dependencies:
+    flutter_test: ""
