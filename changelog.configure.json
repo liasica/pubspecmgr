@@ -45,6 +45,7 @@
     {
       "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(?:\\([^)]+\\))?!?:\\s*(.*)$",
       "on_property": "title",
+      "on_empty": "other",
       "target": "$1"
     }
   ]

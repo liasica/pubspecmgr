@@ -94,3 +94,4 @@ jobs:
         with:
           generate_release_notes: false
           body: ${{ steps.generate_changelog.outputs.changelog }}
+          files: dist/build/*
