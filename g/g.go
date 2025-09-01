@@ -4,9 +4,14 @@
 
 package g
 
+import "fmt"
+
 var (
 	Version    = "1.0.0"
 	Commit     = "none"
 	CommitDate = "unknown"
-	TreeState  = "unknown"
 )
+
+func GetVersion() string {
+	return fmt.Sprintf("%s-%s (%s)", Version, Commit, CommitDate)
+}

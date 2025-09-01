@@ -8,22 +8,22 @@ import "resty.dev/v3"
 
 // PackageInfo represents the complete package information from pub.dev API
 type PackageInfo struct {
-	Name     string    `json:"name,omitempty"`
-	Latest   Version   `json:"latest,omitempty"`
-	Versions []Version `json:"versions,omitempty"`
+	Name     string           `json:"name,omitempty"`
+	Latest   PackageVersion   `json:"latest,omitempty"`
+	Versions []PackageVersion `json:"versions,omitempty"`
 }
 
-// Version represents a single version of a package
-type Version struct {
-	Version       string  `json:"version,omitempty"`
-	Pubspec       Pubspec `json:"pubspec,omitempty"`
-	ArchiveURL    string  `json:"archive_url,omitempty"`
-	ArchiveSHA256 string  `json:"archive_sha256,omitempty"`
-	Published     string  `json:"published,omitempty"`
+// PackageVersion represents a single version of a package
+type PackageVersion struct {
+	Version       string         `json:"version,omitempty"`
+	Pubspec       PackagePubspec `json:"pubspec,omitempty"`
+	ArchiveURL    string         `json:"archive_url,omitempty"`
+	ArchiveSHA256 string         `json:"archive_sha256,omitempty"`
+	Published     string         `json:"published,omitempty"`
 }
 
-// Pubspec represents the pubspec.yaml content
-type Pubspec struct {
+// PackagePubspec represents the pubspec.yaml content
+type PackagePubspec struct {
 	Name            string         `json:"name,omitempty"`
 	Version         string         `json:"version,omitempty"`
 	Description     string         `json:"description,omitempty"`

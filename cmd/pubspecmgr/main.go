@@ -12,6 +12,7 @@ import (
 
 	"github.com/liasica/pubspecmgr"
 	"github.com/liasica/pubspecmgr/cmd/pubspecmgr/subcommand"
+	"github.com/liasica/pubspecmgr/g"
 )
 
 func main() {
@@ -23,6 +24,7 @@ func main() {
 		Use:               "pubspecmgr",
 		Short:             "pubspec version manager",
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
+		Version:           g.GetVersion(),
 		PersistentPreRun: func(_ *cobra.Command, _ []string) {
 			// loading config
 			pubspecmgr.LoadConfig(configFile)

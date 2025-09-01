@@ -1,0 +1,92 @@
+builds:
+  # You can have multiple builds defined as a yaml list
+  -
+    # Path to main.go file or main package.
+    # Notice: when used with `gomod.proxy`, this must be a package.
+    #
+    # Default: `.`.
+    main: ./cmd/pubspecmgr
+
+    # Binary name.
+    # Can be a path (e.g. `bin/app`) to wrap the binary in a directory.
+    #
+    # Default: Project directory name.
+    binary: build/pubspecmgr-{{ .Os }}-{{ .Arch }}
+    # binary: build/pubspecmgr-{{ .Os }}-{{ .Arch }}{{ if eq .Os "windows" }}.exe{{ end }}
+
+    no_unique_dist_dir: true
+
+    # Custom flags.
+    #
+    # Templates: allowed.
+    flags:
+      - -v
+      - -trimpath
+
+    # Custom gcflags.
+    # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
+    # and https://pkg.go.dev/cmd/compile
+    #
+    # Templates: allowed.
+    gcflags:
+      - all=-N -l
+
+    # Custom ldflags.
+    # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
+    # and https://pkg.go.dev/cmd/link
+    #
+    # Default: '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser'.
+    # Templates: allowed.
+    ldflags:
+      - -s -w -X main.build={{.Version}}
+      - -X github.com/liasica/pubspecmgr/g.Version={{ .Env.VERSION }}
+      - -X github.com/liasica/pubspecmgr/g.Commit={{ .Env.COMMIT }}
+      - -X github.com/liasica/pubspecmgr/g.CommitDate={{ .Env.COMMIT_DATE }}
+
+    # GOOS list to build for.
+    # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Environment_variables
+    #
+    # Default: [ 'darwin', 'linux', 'windows' ].
+    goos:
+      - darwin
+      - linux
+      - windows
+
+    # GOARCH to build for.
+    # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Environment_variables
+    #
+    # Default: [ '386', 'amd64', 'arm64' ].
+    goarch:
+      - amd64
+      - arm64
+
+upx:
+  - # Whether to enable it or not.
+    #
+    # Templates: allowed.
+    enabled: true
+
+    # Filter by build ID.
+    ids: [build1, build2]
+
+    # Filter by GOOS.
+    goos: [linux, darwin]
+
+    # Filter by GOARCH.
+    goarch: [arm, amd64]
+
+    # Filter by GOARM.
+    goarm: [8]
+
+    # Filter by GOAMD64.
+    goamd64: [v1]
+
+    # Compress argument.
+    # Valid options are from '1' (faster) to '9' (better), and 'best'.
+    compress: best
+
+    # Whether to try LZMA (slower).
+    lzma: true
+
+    # Whether to try all methods and filters (slow).
+    brute: true

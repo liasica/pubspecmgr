@@ -1,0 +1,79 @@
+name: Go releaser
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+# permissions: read-all
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    name: Go Releaser
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup ldflags variables
+        id: ldflags
+        run: |
+          echo "commit-date=$(git log --date=iso8601-strict -1 --pretty=%cI)" >> "$GITHUB_OUTPUT"
+          echo "commit=$(echo $GITHUB_SHA | cut -c1-7)" >> "$GITHUB_OUTPUT"
+          echo "version=$(git describe --tags --always --dirty | cut -c2-)" >> "$GITHUB_OUTPUT"
+          echo "tree-state=$(if git diff --quiet; then echo "clean"; else echo "dirty"; fi)" >> "$GITHUB_OUTPUT"
+
+      - name: Generate changelog
+        id: generate_changelog
+        uses: mikepenz/release-changelog-builder-action@v5.4.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          mode: 'COMMIT'
+          configuration: 'changelog.configure.json'
+
+      - name: Display variables
+        run: |
+          echo "VERSION=${{ steps.ldflags.outputs.version }}"
+          echo "COMMIT=${{ steps.ldflags.outputs.commit }}"
+          echo "COMMIT_DATE=${{ steps.ldflags.outputs.commit-date }}"
+          echo "TREE_STATE=${{ steps.ldflags.outputs.tree-state }}"
+          echo "CHANGELOG=${{ steps.generate_changelog.outputs.changelog }}"
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.25
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          # either 'goreleaser' (default) or 'goreleaser-pro'
+          distribution: goreleaser
+          # 'latest', 'nightly', or a semver
+          version: '~> v2'
+          # args: release --clean --release-notes "${{ steps.generate_changelog.outputs.changelog }}"
+          args: build --clean --output build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.ldflags.outputs.version }}
+          COMMIT: ${{ steps.ldflags.outputs.commit }}
+          COMMIT_DATE: ${{ steps.ldflags.outputs.commit-date }}
+          TREE_STATE: ${{ steps.ldflags.outputs.tree-state }}
+          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
+
+      - name: List build files
+        run: |
+          ls -lah dist/build
+          dist/build/pubspecmgr-linux-amd64 -v
+
+      - name: Release
+        uses: softprops/action-gh-release@v2.3.2
+        with:
+          generate_release_notes: false
+          body: ${{ steps.generate_changelog.outputs.changelog }}
