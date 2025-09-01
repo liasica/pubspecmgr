@@ -56,8 +56,13 @@ func NewPackageFromString(str string, node ast.Node) (*Package, error) {
 }
 
 // GetLatest Fetches the latest version of the package from the pub.dev API
-func (pkg *Package) GetLatest() (newVersion string) {
+func (pkg *Package) GetLatest(constraint bool) (newVersion string) {
 	newVersion = pkg.Version
+
+	var prefix string
+	if strings.HasPrefix(pkg.Version, "^") {
+		prefix = "^"
+	}
 
 	var err error
 	pkg.info, err = GetPackageInfo(pkg.Name)
@@ -66,7 +71,35 @@ func (pkg *Package) GetLatest() (newVersion string) {
 		return
 	}
 
-	log.Infof("latest version of package %s is %s, current: %s", pkg.Name, pkg.info.Latest.Version, pkg.Version)
+	// If constraint is true, find the latest version that satisfies the constraint
+	if constraint {
+		for i := len(pkg.info.Versions) - 1; i >= 0; i-- {
+			pver := pkg.info.Versions[i]
 
-	return pkg.info.Latest.Version
+			// Parse the version string
+			var ver *semver.Version
+			ver, err = semver.NewVersion(pver.Version)
+			if err != nil {
+				log.Error("failed to parse package version: %v", err)
+				return
+			}
+
+			// Check if the version satisfies the constraint
+			if pkg.constraints.Check(ver) {
+				newVersion = prefix + pver.Version
+				break
+			}
+		}
+	} else {
+		// If no constraint, just take the latest version
+		if pkg.info.Latest != nil {
+			newVersion = prefix + pkg.info.Latest.Version
+		}
+	}
+
+	if newVersion != pkg.Version {
+		log.Infof("latest version of package %s is %s, current: %s", pkg.Name, newVersion, pkg.Version)
+	}
+
+	return
 }

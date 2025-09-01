@@ -9,7 +9,7 @@ import "resty.dev/v3"
 // PackageInfo represents the complete package information from pub.dev API
 type PackageInfo struct {
 	Name     string           `json:"name,omitempty"`
-	Latest   PackageVersion   `json:"latest,omitempty"`
+	Latest   *PackageVersion  `json:"latest,omitempty"`
 	Versions []PackageVersion `json:"versions,omitempty"`
 }
 

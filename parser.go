@@ -140,8 +140,13 @@ func (p *Parser) Parse() (parsed *Parsed, err error) {
 	return
 }
 
+// Result Returns the string representation of the parsed AST
+func (p *Parsed) Result() string {
+	return p.File.String()
+}
+
 // Save Saves the parsed AST back to the pubspec.yaml file
 func (p *Parsed) Save() (err error) {
-	str := p.File.String()
+	str := p.Result()
 	return os.WriteFile(p.Path, []byte(str), 0644)
 }

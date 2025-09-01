@@ -91,7 +91,7 @@ func (u *Upgrader) worker() {
 	}()
 
 	for pkg := range u.ch {
-		latest := pkg.GetLatest()
+		latest := pkg.GetLatest(u.constraint)
 		if latest != "" {
 			// Using mutex to protect AST modification to avoid concurrent modification conflicts
 			u.mu.Lock()
