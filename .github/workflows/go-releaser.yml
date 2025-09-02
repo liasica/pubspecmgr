@@ -95,3 +95,18 @@ jobs:
           generate_release_notes: false
           body: ${{ steps.generate_changelog.outputs.changelog }}
           files: dist/build/*
+
+      - name: Bump Version
+        run: |
+          sed -i "s/Version\([[:space:]]*\)= .*/Version\1= \"${{ steps.ldflags.outputs.version }}\"/" g/g.go
+          sed -i "s/Commit\([[:space:]]*\)= .*/Commit\1= \"${{ steps.ldflags.outputs.commit }}\"/" g/g.go
+          sed -i "s/CommitDate\([[:space:]]*\)= .*/CommitDate\1= \"${{ steps.ldflags.outputs.commit_date }}\"/" g/g.go
+          echo "bump version to v${{ steps.ldflags.outputs.version }}"
+          cat g/g.go
+
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "bump version to v${{ steps.ldflags.outputs.version }}"
+          branch: master
+          file_pattern: 'g/g.go'
