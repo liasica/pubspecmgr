@@ -80,11 +80,16 @@ func (v *Visitor) Visit(node ast.Node) ast.Visitor {
 	}
 
 	tk := node.GetToken()
-	if tk.Type == token.MappingValueType {
-		pkg, _ := NewPackageFromString(node.String(), node)
-		if pkg != nil {
-			v.parsed.Packages = append(v.parsed.Packages, pkg)
-		}
+
+	// Check for pattern: "pkgName": "version"
+	// This ensures that we only capture direct string mappings which represent package dependencies
+	// and avoids capturing nested structures or non-string values.
+	// Example match: dependencies: pkgName: "1.0.0"
+	// Non-matches: dependencies: pkgName: { git: ... } or dependencies: pkgName:
+	// This is done by checking that the previous and next tokens are of type StringType
+	// and the current token is of type MappingValueType
+	if tk.Type == token.MappingValueType && tk.PreviousType() == token.StringType && tk.NextType() == token.StringType {
+		v.parsed.Packages = append(v.parsed.Packages, NewPackage(tk.Prev.Value, tk.Next.Value, node))
 	}
 
 	return v

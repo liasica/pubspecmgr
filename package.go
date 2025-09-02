@@ -14,7 +14,7 @@ import (
 	"github.com/goccy/go-yaml/ast"
 )
 
-var packageRegexp = regexp.MustCompile(`(\S+)?:[| ]([\^|]?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)`)
+var packageRegexp = regexp.MustCompile(`^(\S+)?:[| ]([\^|]?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)`)
 
 // Package represents a Dart/Flutter package with its name and version
 //
@@ -44,7 +44,7 @@ func NewPackage(name, version string, node ast.Node) *Package {
 // The string should be in the format "package: version"
 // Returns nil if the string does not match the expected format
 func NewPackageFromString(str string, node ast.Node) (*Package, error) {
-	matches := packageRegexp.FindStringSubmatch(str)
+	matches := packageRegexp.FindStringSubmatch(strings.TrimSpace(str))
 	if len(matches) < 3 {
 		return nil, fmt.Errorf("%w: %s", ErrPackageLine, str)
 	}
