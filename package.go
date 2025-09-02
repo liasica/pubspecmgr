@@ -29,15 +29,18 @@ type Package struct {
 }
 
 // NewPackage creates a new Package instance
-func NewPackage(name, version string, node ast.Node) *Package {
-	constraints, _ := semver.NewConstraint(version)
+func NewPackage(name, version string, node ast.Node) (*Package, error) {
+	constraints, err := semver.NewConstraint(version)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Package{
 		Name:        name,
 		Version:     version,
 		node:        node,
 		constraints: constraints,
-	}
+	}, nil
 }
 
 // NewPackageFromString Creates a new Package instance from a string
@@ -52,7 +55,7 @@ func NewPackageFromString(str string, node ast.Node) (*Package, error) {
 	name := strings.TrimSpace(matches[1])
 	version := strings.TrimSpace(matches[2])
 
-	return NewPackage(name, version, node), nil
+	return NewPackage(name, version, node)
 }
 
 // GetLatest Fetches the latest version of the package from the pub.dev API
