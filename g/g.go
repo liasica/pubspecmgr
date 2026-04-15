@@ -7,9 +7,9 @@ package g
 import "fmt"
 
 var (
-	Version    = "1.0.0"
-	Commit     = "none"
-	CommitDate = "unknown"
+	Version    = "1.0.5"
+	Commit     = "d49cdcb"
+	CommitDate = "2026-04-15T19:24:25+08:00"
 )
 
 func GetVersion() string {
